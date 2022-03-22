@@ -19,5 +19,8 @@
   "homepage": "https://github.com/ryanallenk/tinyapp#readme",
   "dependencies": {
     "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "ejs": "^3.1.6"
   }
 }
