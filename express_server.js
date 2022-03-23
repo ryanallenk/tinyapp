@@ -2,6 +2,7 @@ const express = require("express");
 const res = require("express/lib/response");
 const app = express();
 const PORT = 8080;
+const cookierParser = require('cookie-parser');
 
 function generateRandomString(){
   return Math.random().toString(36).slice(-6)
