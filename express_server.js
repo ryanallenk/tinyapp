@@ -80,6 +80,12 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
+// route to show registration page
+app.get('/register', (req, res) => {
+  const templateVars = { username: req.cookies["username"] };
+  res.render("register", templateVars);
+});
+
 // initial route test
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
