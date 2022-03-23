@@ -53,8 +53,15 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/`);
 });
 
+// route for login request
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username)
+  res.redirect(`/urls`);
+});
+
+// route for logout request
+app.post("/logout", (req, res) => {
+  res.clearCookie("username")
   res.redirect(`/urls`);
 });
 
