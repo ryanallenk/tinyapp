@@ -4,7 +4,7 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 
-const {generateRandomString, authenticateEmail} = require('./helpers/userHelpers')
+const {generateRandomString, authenticateEmail, findUserByEmail} = require('./helpers/userHelpers')
 
 app.set("view engine", "ejs");
 
@@ -59,7 +59,15 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // route for login request
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username)
+  if (!authenticateEmail(req.body.emailLogin, users)) {
+    return res.status(403).send("Error: A user with that email does not exist.")
+  }
+  let foundUser = findUserByEmail(req.body.emailLogin, users);
+  // console.log(req.body.passwordLogin.toString());
+  // console.log(foundUser.password.toString());
+  if ((foundUser.password) !== (req.body.passwordLogin)) {
+    return res.status(403).send("Error: The password entered is incorrect.")
+  };
   res.redirect(`/urls`);
 });
 
