@@ -2,7 +2,7 @@ const express = require("express");
 const res = require("express/lib/response");
 const app = express();
 const PORT = 8080;
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 
 const {generateRandomString, authenticateEmail, findUserByEmail, urlsForUser} = require('./helpers/userHelpers')
@@ -40,38 +40,41 @@ const users = {
 }
 
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}), cookieParser());
+app.use(bodyParser.urlencoded({extended: true}), cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 // in the event of a request type GET, if the route asked is "/", then run the callback
 // req is request and res is the response to send back
 
 app.get("/urls", (req, res) => {
-  userID = req.cookies["user_id"]
+  userID = req.session.user_id
   urlsUserDB = urlsForUser(userID, urlDatabase)
   const templateVars = { 
     urls: urlsUserDB,
-    user: users[req.cookies["user_id"]] 
+    user: users[req.session.user_id]
   };
-  if (!users[req.cookies["user_id"]]) {
+  if (!users[req.session.user_id]) {
     return res.status(401).send("Error: You are not logged in.")
   }
   res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  if (!users[req.cookies["user_id"]]) {
+  if (!users[req.session.user_id]) {
     res.redirect('/login');
   }
   let randomString = generateRandomString()
   urlDatabase [randomString] = {
     longURL: req.body.longURL,
-    userID: req.cookies["user_id"]
+    userID: req.session.user_id
    }; 
   res.redirect(`/urls/${randomString}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (!users[req.cookies["user_id"]]) {
+  if (!users[req.session.user_id]) {
     return res.status(401).send("Error: You must be logged in to do that.");
   }
   delete urlDatabase[req.params.shortURL];
@@ -79,7 +82,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  if (!users[req.cookies["user_id"]]) {
+  if (!users[req.session.user_id]) {
     return res.status(401).send("Error: You must be logged in to do that.");
   }
   urlDatabase[req.params.shortURL]["longURL"] = req.body.updateURL;
@@ -98,13 +101,13 @@ app.post("/login", (req, res) => {
   if (!bcrypt.compareSync(req.body.passwordLogin, hashedPassword)) {
     return res.status(403).send("Error: The password entered is incorrect.")
   };
-  res.cookie("user_id", foundUser.id)
+  req.session.user_id = foundUser.id;
   res.redirect(`/urls`);
 });
 
 // route for logout request
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id")
+  req.session = null;
   res.redirect(`/urls`);
 });
 
@@ -122,21 +125,21 @@ app.post("/register", (req, res) => {
     "email": req.body.email,
     "password": bcrypt.hashSync(req.body.password)
   } 
-  res.cookie("user_id", randomString)
+  req.session.user_id = randomString
   res.redirect(`/urls`);
   console.log(users);
 });
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]]  };
-  if (!users[req.cookies["user_id"]]) {
+  const templateVars = { user: users[req.session.user_id] };
+  if (!users[req.session.user_id]) {
     res.redirect('/login');
   }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: users[req.cookies["user_id"]]  };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: users[req.session.user_id]  };
   res.render("urls_show", templateVars);
 });
 
@@ -150,13 +153,13 @@ app.get('/u/:shortURL', (req, res) => {
 
 // route to show registration page
 app.get('/register', (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]] };
+  const templateVars = { user: users[req.session.user_id] };
   res.render("register", templateVars);
 });
 
 // route to show login page
 app.get('/login', (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]] };
+  const templateVars = { user: users[req.session.user_id]  };
   res.render("login", templateVars);
 });
 
