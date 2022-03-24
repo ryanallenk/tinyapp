@@ -3,6 +3,7 @@ const res = require("express/lib/response");
 const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 
 const {generateRandomString, authenticateEmail, findUserByEmail, urlsForUser} = require('./helpers/userHelpers')
 
@@ -93,7 +94,8 @@ app.post("/login", (req, res) => {
   let foundUser = findUserByEmail(req.body.emailLogin, users);
   // console.log(req.body.passwordLogin.toString());
   // console.log(foundUser.password.toString());
-  if ((foundUser.password) !== (req.body.passwordLogin)) {
+  let hashedPassword = foundUser.password;
+  if (!bcrypt.compareSync(req.body.passwordLogin, hashedPassword)) {
     return res.status(403).send("Error: The password entered is incorrect.")
   };
   res.cookie("user_id", foundUser.id)
@@ -118,10 +120,11 @@ app.post("/register", (req, res) => {
   users [randomString] = {
     "id": randomString,
     "email": req.body.email,
-    "password": req.body.password
+    "password": bcrypt.hashSync(req.body.password)
   } 
   res.cookie("user_id", randomString)
   res.redirect(`/urls`);
+  console.log(users);
 });
 
 app.get('/urls/new', (req, res) => {
