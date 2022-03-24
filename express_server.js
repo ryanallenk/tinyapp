@@ -8,9 +8,20 @@ const {generateRandomString, authenticateEmail, findUserByEmail} = require('./he
 
 app.set("view engine", "ejs");
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b2xVn2: {
+        longURL: "https://www.lighthouselabs.ca",
+        userID: "aJ48lW"
+    },
+  sm65xk: {
+        longURL: "https://www.google.ca",
+        userID: "aJ48lW"
+    }
 };
 
 // global users object which stores new users from registration page
@@ -46,7 +57,10 @@ app.post("/urls", (req, res) => {
     res.redirect('/login');
   }
   let randomString = generateRandomString()
-  urlDatabase [randomString] = req.body.longURL; 
+  urlDatabase [randomString] = {
+    longURL: req.body.longURL,
+    userID: users[req.cookies["user_id"]]
+   }; 
   res.redirect(`/urls/${randomString}`);
 });
 
@@ -108,12 +122,12 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]]  };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: users[req.cookies["user_id"]]  };
   res.render("urls_show", templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const longURL = urlDatabase[req.params.shortURL]["longURL"]
   res.redirect(longURL);
 });
 
