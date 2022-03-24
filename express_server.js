@@ -4,9 +4,7 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 
-function generateRandomString(){
-  return Math.random().toString(36).slice(-6)
-}
+const {generateRandomString, authenticateEmail} = require('./helpers/userHelpers')
 
 app.set("view engine", "ejs");
 
@@ -17,12 +15,12 @@ const urlDatabase = {
 
 // global users object which stores new users from registration page
 const users = { 
-  "userRandomID": {
+  "user1": {
     id: "userRandomID", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
+ "user2": {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
@@ -34,14 +32,6 @@ app.use(bodyParser.urlencoded({extended: true}), cookieParser());
 
 // in the event of a request type GET, if the route asked is "/", then run the callback
 // req is request and res is the response to send back
-
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
 
 app.get("/urls", (req, res) => {
   const templateVars = { 
@@ -82,14 +72,18 @@ app.post("/logout", (req, res) => {
 // route to handle register request
 app.post("/register", (req, res) => {
   let randomString = generateRandomString()
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send("Error: Required field missing information.")
+  }
+  if (authenticateEmail(req.body.email, users)) {
+    return res.status(400).send("Error: A user with that email is already registered.")
+  }
   users [randomString] = {
     "id": randomString,
     "email": req.body.email,
     "password": req.body.password
   } 
   res.cookie("user_id", randomString)
-  // console.log(users)
-  // console.log(users[randomString])
   res.redirect(`/urls`);
 });
 
@@ -112,11 +106,6 @@ app.get('/u/:shortURL', (req, res) => {
 app.get('/register', (req, res) => {
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("register", templateVars);
-});
-
-// initial route test
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 // server startup message
