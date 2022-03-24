@@ -15,12 +15,12 @@ const urlDatabase = {
 
 // global users object which stores new users from registration page
 const users = { 
-  "user1": {
+  "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
   },
- "user2": {
+ "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
@@ -68,6 +68,7 @@ app.post("/login", (req, res) => {
   if ((foundUser.password) !== (req.body.passwordLogin)) {
     return res.status(403).send("Error: The password entered is incorrect.")
   };
+  res.cookie("user_id", foundUser.id)
   res.redirect(`/urls`);
 });
 
