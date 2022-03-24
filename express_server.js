@@ -4,7 +4,7 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 
-const {generateRandomString, authenticateEmail, findUserByEmail} = require('./helpers/userHelpers')
+const {generateRandomString, authenticateEmail, findUserByEmail, urlsForUser} = require('./helpers/userHelpers')
 
 app.set("view engine", "ejs");
 
@@ -20,7 +20,7 @@ const urlDatabase = {
     },
   sm65xk: {
         longURL: "https://www.google.ca",
-        userID: "aJ48lW"
+        userID: "userRandomID"
     }
 };
 
@@ -45,10 +45,15 @@ app.use(bodyParser.urlencoded({extended: true}), cookieParser());
 // req is request and res is the response to send back
 
 app.get("/urls", (req, res) => {
+  userID = req.cookies["user_id"]
+  urlsUserDB = urlsForUser(userID, urlDatabase)
   const templateVars = { 
-    urls: urlDatabase, 
+    urls: urlsUserDB,
     user: users[req.cookies["user_id"]] 
   };
+  if (!users[req.cookies["user_id"]]) {
+    return res.status(401).send("Error: You are not logged in.")
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -59,18 +64,24 @@ app.post("/urls", (req, res) => {
   let randomString = generateRandomString()
   urlDatabase [randomString] = {
     longURL: req.body.longURL,
-    userID: users[req.cookies["user_id"]]
+    userID: req.cookies["user_id"]
    }; 
   res.redirect(`/urls/${randomString}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if (!users[req.cookies["user_id"]]) {
+    return res.status(401).send("Error: You must be logged in to do that.");
+  }
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.updateURL;
+  if (!users[req.cookies["user_id"]]) {
+    return res.status(401).send("Error: You must be logged in to do that.");
+  }
+  urlDatabase[req.params.shortURL]["longURL"] = req.body.updateURL;
   res.redirect(`/urls/`);
 });
 

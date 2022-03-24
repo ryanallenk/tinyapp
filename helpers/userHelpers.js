@@ -12,8 +12,22 @@ const findUserByEmail = (email, usersDB) => {
   }
 };
 
+const urlsForUser = (id, urlDatabase) => {
+  urlDatabaseForUser = {}
+
+  for (const url in urlDatabase)
+    if (id === `${urlDatabase[url]["userID"]}`) {
+
+      urlDatabaseForUser [url] = {
+        longURL: urlDatabase[url]["longURL"],
+        userID: urlDatabase[url]["userID"]
+      }
+    };
+    return urlDatabaseForUser;
+};
+
 function generateRandomString(){
   return Math.random().toString(36).slice(-6)
 };
 
-module.exports = {authenticateEmail, generateRandomString, findUserByEmail};
+module.exports = {authenticateEmail, generateRandomString, findUserByEmail, urlsForUser};
