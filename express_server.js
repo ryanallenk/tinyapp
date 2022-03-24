@@ -15,6 +15,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// global users object which stores new users from registration page
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}), cookieParser());
 
@@ -62,6 +76,19 @@ app.post("/login", (req, res) => {
 // route for logout request
 app.post("/logout", (req, res) => {
   res.clearCookie("username")
+  res.redirect(`/urls`);
+});
+
+// route to handle register request
+app.post("/register", (req, res) => {
+  let randomString = generateRandomString()
+  users [randomString] = {
+    "id": randomString,
+    "email": req.body.email,
+    "password": req.body.password
+  } 
+  res.cookie("user_id", randomString)
+  console.log(users)
   res.redirect(`/urls`);
 });
 
