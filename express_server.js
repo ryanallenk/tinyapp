@@ -42,6 +42,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (!users[req.cookies["user_id"]]) {
+    res.redirect('/login');
+  }
   let randomString = generateRandomString()
   urlDatabase [randomString] = req.body.longURL; 
   res.redirect(`/urls/${randomString}`);
@@ -98,6 +101,9 @@ app.post("/register", (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   const templateVars = { user: users[req.cookies["user_id"]]  };
+  if (!users[req.cookies["user_id"]]) {
+    res.redirect('/login');
+  }
   res.render("urls_new", templateVars);
 });
 
