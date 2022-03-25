@@ -4,9 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["The new user registration page"](#)
-!["Short URLS sorted by user"](#)
-!["Edit URLS that have already been created, good thing nothing nefarious could be done with this feature"](#)
+!["The new user registration page"](https://github.com/ryanallenk/tinyapp/blob/main/docs/register.png?raw=true)
+
+!["Short URLS sorted by user"](https://github.com/ryanallenk/tinyapp/blob/main/docs/urls-page.png?raw=true)
+
+!["Edit URLS that have already been created, good thing nothing nefarious could be done with this feature"](https://github.com/ryanallenk/tinyapp/blob/main/docs/url_edit.png?raw=true)
 
 ## Dependencies
 
