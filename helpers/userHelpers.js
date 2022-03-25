@@ -30,4 +30,11 @@ function generateRandomString(){
   return Math.random().toString(36).slice(-6)
 };
 
-module.exports = {authenticateEmail, generateRandomString, findUserByEmail, urlsForUser};
+function makeSafeURL(url) {
+  if (url.indexOf("http://") == 0 || url.indexOf("https://") == 0) {
+  return url
+}
+return `https://${url}`
+}
+
+module.exports = {authenticateEmail, generateRandomString, findUserByEmail, urlsForUser, makeSafeURL};

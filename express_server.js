@@ -5,7 +5,7 @@ const PORT = 8080;
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 
-const {generateRandomString, authenticateEmail, findUserByEmail, urlsForUser} = require('./helpers/userHelpers')
+const {generateRandomString, authenticateEmail, findUserByEmail, urlsForUser, makeSafeURL} = require('./helpers/userHelpers')
 
 app.set("view engine", "ejs");
 
@@ -74,8 +74,9 @@ app.post("/urls", (req, res) => {
     res.redirect('/login');
   }
   let randomString = generateRandomString()
+  
   urlDatabase [randomString] = {
-    longURL: req.body.longURL,
+    longURL: makeSafeURL(req.body.longURL),
     userID: req.session.user_id
    }; 
   res.redirect(`/urls/${randomString}`);
