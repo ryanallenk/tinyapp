@@ -61,6 +61,14 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// route to get index page if logged in and login page if not
+app.get("/", (req, res) => {
+  if (!users[req.session.user_id]) {
+    res.redirect("/login");
+  }
+  res.redirect("/urls")
+});
+
 app.post("/urls", (req, res) => {
   if (!users[req.session.user_id]) {
     res.redirect('/login');
@@ -154,12 +162,18 @@ app.get('/u/:shortURL', (req, res) => {
 // route to show registration page
 app.get('/register', (req, res) => {
   const templateVars = { user: users[req.session.user_id] };
+  if (users[req.session.user_id]){
+    res.redirect("/urls")
+  }
   res.render("register", templateVars);
 });
 
 // route to show login page
 app.get('/login', (req, res) => {
   const templateVars = { user: users[req.session.user_id]  };
+  if (users[req.session.user_id]){
+    res.redirect("/urls")
+  }
   res.render("login", templateVars);
 });
 
